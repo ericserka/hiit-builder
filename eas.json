@@ -1,0 +1,9 @@
+{
+  "build": {
+    "myapp": {
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}
