@@ -21,7 +21,8 @@
     "react-native-progress": "^5.0.1",
     "react-native-web": "~0.19.10",
     "zustand": "^4.5.4",
-    "react-native-svg": "15.2.0"
+    "react-native-svg": "15.2.0",
+    "expo-keep-awake": "~13.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
