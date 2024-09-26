@@ -1,8 +1,8 @@
 import { Picker } from "@react-native-picker/picker"
 import { useState } from "react"
-import { Pressable, StyleSheet, Text, TextInput, View, Button } from "react-native"
-import { range } from "../helpers/utils"
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native"
 import { useStore } from "../helpers/store"
+import { range } from "../helpers/array"
 
 export const Form = () => {
   const [displacement, setDisplacement] = useState("")
@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     height: 40,
     padding: 10,
-    flex: 1,
     alignItems: "center"
   }
 })
