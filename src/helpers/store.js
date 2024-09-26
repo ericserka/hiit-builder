@@ -1,7 +1,11 @@
 import { Alert } from "react-native"
 import { dayjs } from "./dayjs"
 import { create } from 'zustand'
-import { calculateMaxSpeed, calculateDisplacement, MAX_TREADMILL_SPEED, calculatePercentage, msToSec } from "./utils"
+import { metersPerSecToKmh } from "./speedUnitConverter"
+import { kmToMeters, metersToKm } from "./distanceUnitConverter"
+import { calculatePercentage, round } from "./math"
+import { calculateDisplacement, calculateMaxSpeed, MAX_TREADMILL_SPEED } from './treadmill'
+import { msToSec } from "./timeUnitConverter"
 
 export const useStore = create(set => ({
   mode: "form",
@@ -19,31 +23,35 @@ export const useStore = create(set => ({
       return state
     }
     else {
+      const displacementMeters = kmToMeters(displacement)
       const duration = dayjs.duration({ minutes, seconds })
-      const [maxSpeed, changed] = calculateMaxSpeed(displacement, duration.asHours())
-      const newDisplacement = changed ? calculateDisplacement(maxSpeed, duration.asHours()) : displacement
+      const durationSeconds = duration.asSeconds()
+      const durationMilliseconds = duration.asMilliseconds()
+      const [maxSpeed, changed] = calculateMaxSpeed(displacementMeters, durationSeconds)
+      const newDisplacement = changed ? calculateDisplacement(maxSpeed, durationSeconds) : displacementMeters
 
       if (changed) {
         Alert.alert(
           "Workout changed automatically",
-          `Since the treadmill's maximum speed is ${MAX_TREADMILL_SPEED} km/h, your workout displacement has been updated to ${newDisplacement} km.`
+          `Since the treadmill's maximum speed is ${metersPerSecToKmh(MAX_TREADMILL_SPEED)} km/h, your workout displacement has been updated to ${round(metersToKm(newDisplacement), 2)} km.`
         )
       }
 
-      const speed50 = parseFloat(calculatePercentage(maxSpeed, 50).toFixed(1))
-      const speed70 = parseFloat(calculatePercentage(maxSpeed, 70).toFixed(1))
-      const duration10 = msToSec(calculatePercentage(duration.asMilliseconds(), 10))
-      const duration20 = msToSec(calculatePercentage(duration.asMilliseconds(), 20))
+      const speed50 = round(metersPerSecToKmh(calculatePercentage(maxSpeed, 50)), 1)
+      const speed70 = round(metersPerSecToKmh(calculatePercentage(maxSpeed, 70)), 1)
+      const speed100 = round(metersPerSecToKmh(maxSpeed), 1)
+      const duration10 = round(msToSec(calculatePercentage(durationMilliseconds, 10)), 0)
+      const duration20 = round(msToSec(calculatePercentage(durationMilliseconds, 20)), 0)
 
       const sets = [
         { id: 0, duration: 13, speed: 0 },
         { id: 1, duration: duration10, speed: speed50 },
         { id: 2, duration: duration20, speed: speed70 },
-        { id: 3, duration: duration10, speed: maxSpeed },
+        { id: 3, duration: duration10, speed: speed100 },
         { id: 4, duration: duration10, speed: speed50 },
         { id: 5, duration: duration10, speed: speed70 },
         { id: 6, duration: duration10, speed: speed50 },
-        { id: 7, duration: duration10, speed: maxSpeed },
+        { id: 7, duration: duration10, speed: speed100 },
         { id: 8, duration: duration10, speed: speed70 },
         { id: 9, duration: duration10, speed: speed50 },
       ]
